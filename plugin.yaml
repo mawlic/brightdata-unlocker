@@ -1,0 +1,13 @@
+name: web-brightdata-unlocker
+version: 0.7.0
+description: Protected-page extraction through Bright Data Web Unlocker, Dataset and DCA collector APIs
+author: Oleg Tretyak
+kind: backend
+license: MIT
+provides_web_providers:
+  - brightdata-unlocker
+requires_env:
+  - name: BRIGHTDATA_API_KEY
+    description: Bright Data API key with access to the configured Web Unlocker zone
+    prompt: Bright Data API key
+    secret: true

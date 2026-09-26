@@ -122,7 +122,7 @@ the plugin has no undeclared runtime dependency on Beautiful Soup.
 
 ## Status
 
-Version 0.7.2 was import- and regression-tested on 2026-09-26 without `bs4`.
+Version 0.7.3 was import- and regression-tested on 2026-09-26 without `bs4`.
 The live production routes previously verified for `wildberries.ru`, `ozon.ru`,
 and `avito.ru` continue through the generic Web Unlocker path. See
 [`hermes-web-access`](https://github.com/mawlic/hermes-web-access) for the

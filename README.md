@@ -117,11 +117,14 @@ pytest -q tests/test_provider.py
 ```
 
 Pure-Python tests with `httpx.MockTransport`; no network required.
+HTML-to-visible-text conversion uses Python's standard-library `HTMLParser`;
+the plugin has no undeclared runtime dependency on Beautiful Soup.
 
 ## Status
 
-Verified live in production (2026-08-01) for `wildberries.ru`, `ozon.ru`,
-`avito.ru` via the generic Web Unlocker path. See
+Version 0.7.1 was import- and regression-tested on 2026-09-26 without `bs4`.
+The live production routes previously verified for `wildberries.ru`, `ozon.ru`,
+and `avito.ru` continue through the generic Web Unlocker path. See
 [`hermes-web-access`](https://github.com/mawlic/hermes-web-access) for the
 cross-plugin architecture document, verified-targets table, and known
 restrictions.

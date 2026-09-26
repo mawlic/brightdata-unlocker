@@ -3,11 +3,11 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urlsplit
 
 import httpx
-from bs4 import BeautifulSoup
 
 from agent.web_search_provider import WebSearchProvider, get_provider_env
 
@@ -115,15 +115,59 @@ def load_plugin_settings() -> dict[str, Any]:
     }
 
 
+class _VisibleHTMLParser(HTMLParser):
+    _HIDDEN = {"script", "style", "noscript", "template", "svg"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.hidden_depth = 0
+        self.in_title = False
+        self.in_body = False
+        self.saw_body = False
+        self.title_parts: list[str] = []
+        self.all_parts: list[str] = []
+        self.body_parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs) -> None:
+        tag = tag.lower()
+        if self.hidden_depth or tag in self._HIDDEN:
+            self.hidden_depth += 1
+            return
+        if tag == "title":
+            self.in_title = True
+        elif tag == "body":
+            self.in_body = True
+            self.saw_body = True
+
+    def handle_endtag(self, tag: str) -> None:
+        tag = tag.lower()
+        if self.hidden_depth:
+            self.hidden_depth -= 1
+            return
+        if tag == "title":
+            self.in_title = False
+        elif tag == "body":
+            self.in_body = False
+
+    def handle_data(self, data: str) -> None:
+        if self.hidden_depth:
+            return
+        if self.in_title:
+            self.title_parts.append(data)
+        self.all_parts.append(data)
+        if self.in_body:
+            self.body_parts.append(data)
+
+
 def _visible_html(html: str) -> tuple[str, str]:
-    soup = BeautifulSoup(html, "html.parser")
-    for element in soup(["script", "style", "noscript", "template", "svg"]):
-        element.decompose()
-    title = soup.title.get_text(" ", strip=True) if soup.title else ""
-    body = soup.body or soup
+    parser = _VisibleHTMLParser()
+    parser.feed(html)
+    parser.close()
+    title = re.sub(r"\s+", " ", " ".join(parser.title_parts)).strip()
+    raw_parts = parser.body_parts if parser.saw_body else parser.all_parts
     lines = []
     previous = None
-    for raw in body.get_text("\n").splitlines():
+    for raw in raw_parts:
         line = re.sub(r"\s+", " ", raw).strip()
         if line and line != previous:
             lines.append(line)

@@ -1,5 +1,5 @@
 name: web-brightdata-unlocker
-version: 0.7.0
+version: 0.7.1
 description: Protected-page extraction through Bright Data Web Unlocker, Dataset and DCA collector APIs
 author: Oleg Tretyak
 kind: backend
